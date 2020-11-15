@@ -25,7 +25,7 @@ void usage(void){
 }
 
 void printErrExit(char* msg){
-	fprintf(stderr, "%s\n", msg);
+	perror(msg);
 	exit(0);
 }
 
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]){
         return -1;
     } 
 
-    uint16_t port = atoi(argv[2]);
+    uint16_t port = atoi(argv[1]);
     if(port<0 || port > 65535){
 		printErrExit("Invalid port number");
     }
@@ -113,6 +113,7 @@ int main(int argc, char* argv[]){
     while(idPool.empty() == false){
         struct sockaddr_in cliAddr;
 		socklen_t len = sizeof(cliAddr);
+        puts("Waiting for Connection Request");
 		int cliSd = accept(sd, (struct sockaddr *)&cliAddr, &len);
         if(cliSd == -1){
             printErrExit("Accept error");

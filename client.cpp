@@ -18,7 +18,7 @@ void usage(void){
 }
 
 void printErrExit(const char* msg){
-	fprintf(stderr, "%s\n", msg);
+	perror(msg);
 	exit(0);
 }
 
@@ -27,7 +27,6 @@ void sendThread(void){
     int msgLen;
 
     while(true){
-        printf("Enter your message: ");
         fgets(sendBuf, MAXLINE, stdin);
         msgLen = strlen(sendBuf)-1;
         sendBuf[msgLen] = 0;
@@ -52,12 +51,12 @@ void recvThread(void){
 } 
 
 int main(int argc, char* argv[]){
-
+    
     if(argc != 3){
         usage();
         return -1;
     }
-
+    
     struct in_addr ip;
     int res = inet_pton(AF_INET, argv[1], &ip);
 	switch (res) {

@@ -24,7 +24,7 @@ void usage(void){
     puts("sample : echo-server 1234 -e -b");
 }
 
-void printErrExit(char* msg){
+void printErrExit(const char* msg){
 	perror(msg);
 	exit(0);
 }
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]){
         int userId = *idPool.begin();
         idPool.erase(userId);
         userSd.insert(cliSd);
-        thread* t = new thread(clientThread, userId, cliSd);
+        new thread(clientThread, userId, cliSd);
 
         char ip[16];
         inet_ntop(AF_INET, &cliAddr.sin_addr, ip, 16);

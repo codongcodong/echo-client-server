@@ -7,4 +7,4 @@ echo-server: server.cpp
 	g++ -Wall -o echo-server server.cpp -pthread
 
 clean:
-	rm echo-*
+	rm echo-* 

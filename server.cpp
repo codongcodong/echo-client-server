@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <thread>
+#include <mutex>
 #include <map>
 #include <set>
 
@@ -18,6 +19,8 @@ bool doEcho = false;
 bool doBroadcast = false;
 set<int> userSd;                    //set of user socket descriptors
 set<int> idPool;                    //set of availabe user IDs
+mutex userSd_lock;
+mutex idPool_lock;
 
 void usage(void){
     puts("syntax : echo-server <port> [-e[-b]]");
@@ -53,17 +56,25 @@ void clientThread(int userId, int sd){
             sprintf(msgBuf, "[Broadcast: User%d] %s\n", userId, recvBuf);
             msgLen = strlen(msgBuf);
 
+            userSd_lock.lock();
             for(int targetSd : userSd){
                 if(send(targetSd, msgBuf, msgLen, 0)!=msgLen){
                     printErrExit("Broadcast error");
                 }
             }	
+            userSd_lock.unlock();
         }
     }
 
     printf("Connection with [User%d] closed\n",userId);
+
+    idPool_lock.lock();
     idPool.insert(userId);          //return user ID resource
+    idPool_lock.unlock();
+
+    userSd_lock.lock();
     userSd.erase(sd);
+    userSd_lock.unlock();
     close(sd);
 } 
 
@@ -118,10 +129,16 @@ int main(int argc, char* argv[]){
         if(cliSd == -1){
             printErrExit("Accept error");
         }
-    
+
+        idPool_lock.lock();
         int userId = *idPool.begin();
         idPool.erase(userId);
+        idPool_lock.unlock();
+
+        userSd_lock.lock();
         userSd.insert(cliSd);
+        userSd_lock.unlock();
+        
         new thread(clientThread, userId, cliSd);
 
         char ip[16];

@@ -45,6 +45,10 @@ void recvThread(void){
 
     while(true){
         ssize_t res = recv(sd, recvBuf, MAXLINE, 0);
+		if (res == 0 || res == -1) {
+			printf("Received %d\nTerminating Client\n",res);
+			exit(0);
+		}
         recvBuf[res] = 0;
         printf("%s",recvBuf);
     }
